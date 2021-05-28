@@ -4,64 +4,62 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Sample_MonoGame
+using SampleMonoGame.Test;
+
+namespace SampleMonoGame
 {
     public class Core : Game
     {
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
-
         public Core()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            _graphics = new GDMController(this);
+
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
+        #region Properties
+        private GDMController _graphics = null;
+        private SpriteBatch _spriteBatch;
+        #endregion
+
+        #region FrameWork Callbacks
         protected override void Initialize()
         {
-            tracedSize = GraphicsDevice.PresentationParameters.Bounds;
-            canvas = new Texture2D(GraphicsDevice, tracedSize.Width, tracedSize.Height, false, SurfaceFormat.Color);
-            pixels = new UInt32[tracedSize.Width * tracedSize.Height];
-
+            _graphics.Initialize();
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
             base.Initialize();
         }
 
+        private Rectangle tracedSize;
+        private TestAIObject tester = null;
+
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            tracedSize = GraphicsDevice.PresentationParameters.Bounds;
+            tester = new TestAIObject(new Point(100, 100), new Texture2D(GraphicsDevice, 100, 100, false, SurfaceFormat.Color));
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
-            // TODO: Add your update logic here
+            tester.MoveRandomPosition(new Point(tracedSize.Width, tracedSize.Height));
 
             base.Update(gameTime);
         }
 
-        Texture2D canvas;
-        Rectangle tracedSize;
-        UInt32[] pixels;
-
-        Random rnd = new Random();
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
 
-            GraphicsDevice.Textures[0] = null;
-            pixels[rnd.Next(pixels.Length)] = 0xFF00FF00;
-            canvas.SetData<UInt32>(pixels, 0, tracedSize.Width * tracedSize.Height);
-
             _spriteBatch.Begin();
-            _spriteBatch.Draw(canvas, new Rectangle(0, 0, tracedSize.Width, tracedSize.Height), Color.White);
+            _spriteBatch.Draw(tester.texture, tester.GetRect(), Color.White);
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
+        #endregion
     }
 }
