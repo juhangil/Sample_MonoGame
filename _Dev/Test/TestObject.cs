@@ -6,28 +6,30 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace SampleMonoGame.Test
 {
-    public class TestAIObject
+    public class TestAIObject : ObjectBase
     {
-        public TestAIObject(Point objSize, Texture2D objTexture)
+        public TestAIObject(Point startPosition, Point objectSize, Color color) : base(startPosition, objectSize, color)
         {
-            texture = objTexture;
-            size = objSize;
-
-            texture.SetData<UInt32>(Enumerable.Repeat<UInt32>(0xFFFFFFFF, size.X * size.Y).ToArray());
         }
 
         public Rectangle GetRect() => new Rectangle(position, size); 
 
         public static Random rnd = new Random();
 
-        public Texture2D texture = null;
-        public Point size;
-        public Point position;
-
-        public void MoveRandomPosition(Point maxPosition)
+        public override void OnLoadContents()
         {
-            position.X = rnd.Next(0, maxPosition.X);
-            position.Y = rnd.Next(0, maxPosition.Y);
+            
+        }
+
+        public override void OnUpdate()
+        {
+            MoveRandomPosition(GraphicsSettings.SCREEN_WIDTH, GraphicsSettings.SCREEN_HEIGHT);
+        }
+
+        private void MoveRandomPosition(int xMax, int yMax)
+        {
+            position.X = rnd.Next(0, xMax);
+            position.Y = rnd.Next(0, yMax);
         }
     }
 }

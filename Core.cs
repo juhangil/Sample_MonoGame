@@ -10,13 +10,20 @@ namespace SampleMonoGame
 {
     public class Core : Game
     {
+        public static Core instance = null;
+
         public Core()
         {
+            instance = this;
+
             _graphics = new GDMController(this);
 
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            Utility.ColorToInt(Color.White);
         }
+
 
         #region Properties
         private GDMController _graphics = null;
@@ -36,8 +43,10 @@ namespace SampleMonoGame
 
         protected override void LoadContent()
         {
+            MakeObject();
+
             tracedSize = GraphicsDevice.PresentationParameters.Bounds;
-            tester = new TestAIObject(new Point(100, 100), new Texture2D(GraphicsDevice, 100, 100, false, SurfaceFormat.Color));
+            ObjectBase.LoadContentsCallbacks?.Invoke();
         }
 
         protected override void Update(GameTime gameTime)
@@ -45,7 +54,7 @@ namespace SampleMonoGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
-            tester.MoveRandomPosition(new Point(tracedSize.Width, tracedSize.Height));
+            ObjectBase.UpdateCallbacks?.Invoke();
 
             base.Update(gameTime);
         }
@@ -55,11 +64,16 @@ namespace SampleMonoGame
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(tester.texture, tester.GetRect(), Color.White);
+            _spriteBatch.Draw(tester._texture, tester.GetRect(), Color.White);
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
         #endregion
+
+        private void MakeObject()
+        {
+            tester = new TestAIObject(Point.Zero, new Point(50, 50), Color.Cyan);
+        }
     }
 }
